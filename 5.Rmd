@@ -105,7 +105,7 @@ regmix_em=function(y,xmat,pi.init,beta.init,sigma.init,control=list(maxit=500,to
   tol=control$tol
   
   P=matrix(0,n,m)
-  beta.new=matrix(0,p,m)
+  beta.1=matrix(0,p,m)
   count=0
   
   for(iter in 1:maxit){
@@ -113,22 +113,22 @@ regmix_em=function(y,xmat,pi.init,beta.init,sigma.init,control=list(maxit=500,to
       P[i, ]=pi*dnorm(y[i]-x[i, ]%*%beta,0,sigma)/sum(pi*dnorm(y[i]-x[i, ]%*%beta,0,sigma))
     }
     
-    pi.new=colMeans(P)
+    pi.1=colMeans(P)
     
     for(j in 1:m){
-      beta.new[ ,j]<-solve(t(x)%*%diag(P[,j])%*%x)%*%t(x)%*%diag(P[,j])%*%y
+      beta.1[ ,j]<-solve(t(x)%*%diag(P[,j])%*%x)%*%t(x)%*%diag(P[,j])%*%y
     }
     
-    sigma.new=sqrt(sum((P*(y%*%t(rep(1,m))-x%*%beta.new)^2))/n)
+    sigma.1=sqrt(sum((P*(y%*%t(rep(1,m))-x%*%beta.1)^2))/n)
     
-    if(sum(abs(pi.new-pi))+sum(abs(beta.new-beta))+sum(abs(sigma.new-sigma))<tol)break
-      pi=pi.new
-    beta=beta.new
-    sigma=sigma.new
+    if(sum(abs(pi.1-pi))+sum(abs(beta.1-beta))+sum(abs(sigma.1-sigma))<tol)break
+      pi=pi.1
+    beta=beta.1
+    sigma=sigma.1
   }
   if(iter==maxit)
   print("reach maximun loop")
-  list(pi=pi.new,beta=beta.new,sigma=sigma.new,iteration=iter)
+  list(pi=pi.1,beta=beta.1,sigma=sigma.1,iteration=iter)
 }
 ```
 
@@ -157,6 +157,10 @@ output1=regmix_em(y = dat[,1], xmat = dat[,-1],
            sigma.init = sig / sig, 
            control = list(maxit = 500, tol = 1e-5))
 output1
+```
+
+Then choosing beta as beta.init instead of 0.
+```{r}
 output2=regmix_em(y = dat[,1], xmat = dat[,-1], 
            pi.init = pi / pi / length(pi),
            beta.init = bet*1,
@@ -164,4 +168,5 @@ output2=regmix_em(y = dat[,1], xmat = dat[,-1],
            control = list(maxit = 500, tol = 1e-5))
 output2
 ```
+
 
